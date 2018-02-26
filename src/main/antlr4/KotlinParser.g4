@@ -75,7 +75,7 @@ delegationSpecifiers // wrong: every delegationSpecifier may contain annotations
     ;
 
 annotatedDelegationSpecifier
-    : annotations* NL* delegationSpecifier
+    : annotation* NL* delegationSpecifier
     ;
 
 delegationSpecifier
@@ -200,7 +200,7 @@ multiVariableDeclaration
     ;
 
 variableDeclaration
-    : annotations* NL* simpleIdentifier (NL* ':' NL* type)?
+    : annotation* NL* simpleIdentifier (NL* ':' NL* type)?
     ;
 
 getter
@@ -210,7 +210,7 @@ getter
 
 setter
     : modifierList? 'set'
-    | modifierList? 'set' NL* '(' (annotations | parameterModifier)* parameter ')' (NL* ':' NL* type)? NL* functionBody
+    | modifierList? 'set' NL* '(' (annotation | parameterModifier)* parameter ')' (NL* ':' NL* type)? NL* functionBody
     ;
 
 typeAlias
@@ -234,7 +234,7 @@ type
     ;
 
 typeModifierList
-    : (annotations | 'suspend' NL*)+
+    : (annotation | 'suspend' NL*)+
     ;
 
 parenthesizedType
@@ -279,7 +279,7 @@ typeConstraints
     ;
 
 typeConstraint
-    : annotations* simpleIdentifier NL* ':' NL* type
+    : annotation* simpleIdentifier NL* ':' NL* type
     ;
 
 block
@@ -370,7 +370,7 @@ prefixUnaryExpression
     ;
 
 unaryPrefix
-    : annotations
+    : annotation
     | IdentifierAt NL*
     | prefixUnaryOperator NL*
     ;
@@ -416,7 +416,7 @@ callSuffix
     ;
 
 annotatedLambda
-    : (annotations | IdentifierAt)* NL* lambdaLiteral
+    : (annotation | IdentifierAt)* NL* lambdaLiteral
     ;
 
 valueArguments
@@ -437,7 +437,7 @@ typeProjectionModifierList
     ;
 
 valueArgument
-    : annotations? NL* (simpleIdentifier NL* '=' NL*)? '*'? NL* expression
+    : annotation? NL* (simpleIdentifier NL* '=' NL*)? '*'? NL* expression
     ;
 
 primaryExpression
@@ -585,7 +585,7 @@ tryExpression
     ;
 
 catchBlock
-    : 'catch' NL* '(' annotations* simpleIdentifier ':' userType ')' NL* block
+    : 'catch' NL* '(' annotation* simpleIdentifier ':' userType ')' NL* block
     ;
 
 finallyBlock
@@ -599,7 +599,7 @@ loopStatement
     ;
 
 forStatement
-    : 'for' NL* '(' annotations* (variableDeclaration | multiVariableDeclaration) 'in' expression ')' NL* controlStructureBody?
+    : 'for' NL* '(' annotation* (variableDeclaration | multiVariableDeclaration) 'in' expression ')' NL* controlStructureBody?
     ;
 
 whileStatement
@@ -687,7 +687,7 @@ memberAccessOperator
     ;
 
 modifierList
-    : (annotations | modifier)+
+    : (annotation | modifier)+
     ;
 
 modifier
@@ -766,16 +766,16 @@ labelDefinition
     : IdentifierAt NL*
     ;
 
-annotations
-    : (annotation | annotationList) NL*
+annotation
+    : (singleAnnotation | multiAnnotation) NL*
     ;
 
-annotation
+singleAnnotation
     : annotationUseSiteTarget ':' NL* unescapedAnnotation
     | AtIdentifier (NL* '.' simpleIdentifier)* typeArguments? valueArguments?
     ;
 
-annotationList
+multiAnnotation
     : annotationUseSiteTarget ':' '[' unescapedAnnotation+ ']'
     | '@[' unescapedAnnotation+ ']'
     ;
