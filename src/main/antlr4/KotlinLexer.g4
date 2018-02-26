@@ -44,6 +44,7 @@ LPAREN: '(' -> pushMode(Inside);
 RPAREN: ')' -> popMode;
 LSQUARE: '[' -> pushMode(Inside);
 RSQUARE: ']' -> popMode;
+AT_LSQUARE: '@[' -> pushMode(Inside);
 LCURL: '{' -> pushMode(DEFAULT_MODE);
 RCURL: '}' -> popMode;
 MULT: '*' ;
@@ -84,7 +85,6 @@ AS_SAFE: 'as?' ;
 EQEQ: '==' ;
 EQEQEQ: '===' ;
 SINGLE_QUOTE: '\'' ;
-
 //KEYWORDS
 
 RETURN_AT: 'return@' Identifier ;
@@ -94,7 +94,6 @@ BREAK_AT: 'break@' Identifier ;
 THIS_AT: 'this@' Identifier ;
 SUPER_AT: 'super@' Identifier ;
 
-FILE: '@file' ;
 PACKAGE: 'package' ;
 IMPORT: 'import' ;
 CLASS: 'class' ;
@@ -131,17 +130,18 @@ IN: 'in' ;
 NOT_IS: '!is' (WS | NL)+ ;
 NOT_IN: '!in' (WS | NL)+ ;
 OUT: 'out' ;
-FIELD: '@field' ;
-PROPERTY: '@property' ;
-GET: '@get' ;
-SET: '@set' ;
 GETTER: 'get' ;
 SETTER: 'set' ;
-RECEIVER: '@receiver' ;
-PARAM: '@param' ;
-SETPARAM: '@setparam' ;
-DELEGATE: '@delegate' ;
 DYNAMIC: 'dynamic' ;
+AT_FILE: '@file' ;
+AT_FIELD: '@field' ;
+AT_PROPERTY: '@property' ;
+AT_GET: '@get' ;
+AT_SET: '@set' ;
+AT_RECEIVER: '@receiver' ;
+AT_PARAM: '@param' ;
+AT_SETPARAM: '@setparam' ;
+AT_DELEGATE: '@delegate' ;
 
 //MODIFIERS
 
@@ -352,6 +352,7 @@ Inside_LPAREN: LPAREN -> pushMode(Inside), type(LPAREN) ;
 Inside_LSQUARE: LSQUARE -> pushMode(Inside), type(LSQUARE) ;
 Inside_LCURL: LCURL -> pushMode(DEFAULT_MODE), type(LCURL) ;
 Inside_RCURL: RCURL -> popMode, type(RCURL) ;
+Inside_AT_LSQUARE: AT_LSQUARE -> pushMode(Inside), type(AT_LSQUARE) ;
 
 Inside_DOT: DOT -> type(DOT) ;
 Inside_COMMA: COMMA  -> type(COMMA) ;
@@ -405,15 +406,15 @@ Inside_OBJECT: OBJECT -> type(OBJECT) ;
 Inside_SUPER: SUPER -> type(SUPER) ;
 Inside_IN: IN -> type(IN) ;
 Inside_OUT: OUT -> type(OUT) ;
-Inside_FIELD: FIELD -> type(FIELD) ;
-Inside_FILE: FILE -> type(FILE) ;
-Inside_PROPERTY: PROPERTY -> type(PROPERTY) ;
-Inside_GET: GET -> type(GET) ;
-Inside_SET: SET -> type(SET) ;
-Inside_RECEIVER: RECEIVER -> type(RECEIVER) ;
-Inside_PARAM: PARAM -> type(PARAM) ;
-Inside_SETPARAM: SETPARAM -> type(SETPARAM) ;
-Inside_DELEGATE: DELEGATE -> type(DELEGATE) ;
+Inside_AT_FIELD: AT_FIELD -> type(AT_FIELD) ;
+Inside_AT_FILE: AT_FILE -> type(AT_FILE) ;
+Inside_AT_PROPERTY: AT_PROPERTY -> type(AT_PROPERTY) ;
+Inside_AT_GET: AT_GET -> type(AT_GET) ;
+Inside_AT_SET: AT_SET -> type(AT_SET) ;
+Inside_AT_RECEIVER: AT_RECEIVER -> type(AT_RECEIVER) ;
+Inside_AT_PARAM: AT_PARAM -> type(AT_PARAM) ;
+Inside_AT_SETPARAM: AT_SETPARAM -> type(AT_SETPARAM) ;
+Inside_AT_DELEGATE: AT_DELEGATE -> type(AT_DELEGATE) ;
 Inside_THROW: THROW -> type(THROW) ;
 Inside_RETURN: RETURN -> type(RETURN) ;
 Inside_CONTINUE: CONTINUE -> type(CONTINUE) ;

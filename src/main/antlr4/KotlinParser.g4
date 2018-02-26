@@ -23,7 +23,7 @@ script
     ;
 
 fileAnnotation
-    : (FILE COLON (LSQUARE unescapedAnnotation+ RSQUARE | unescapedAnnotation) semi)+
+    : (AT_FILE COLON (LSQUARE unescapedAnnotation+ RSQUARE | unescapedAnnotation) semi)+
     ;
 
 packageHeader
@@ -773,19 +773,19 @@ annotation
 
 annotationList
     : annotationUseSiteTarget COLON LSQUARE unescapedAnnotation+ RSQUARE
-    | AT LSQUARE unescapedAnnotation+ RSQUARE
+    | AT_LSQUARE unescapedAnnotation+ RSQUARE
     ;
 
 annotationUseSiteTarget
-    : FIELD
-    | FILE
-    | PROPERTY
-    | GET
-    | SET
-    | RECEIVER
-    | PARAM
-    | SETPARAM
-    | DELEGATE
+    : AT_FIELD
+    | AT_FILE
+    | AT_PROPERTY
+    | AT_GET
+    | AT_SET
+    | AT_RECEIVER
+    | AT_PARAM
+    | AT_SETPARAM
+    | AT_DELEGATE
     ;
 
 unescapedAnnotation
@@ -844,7 +844,7 @@ shebangLine
     : ShebangLine
     ;
 
-semi: NL+ | SEMICOLON | SEMICOLON NL+ | EOF;
+semi: NL+ | SEMICOLON | SEMICOLON NL* | EOF;
 semis
     : semi ((WS | NL)+ semi)*
     ;
