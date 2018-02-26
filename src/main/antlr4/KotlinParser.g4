@@ -141,7 +141,7 @@ functionDeclaration
     : modifierList?
     'fun'
     (NL* typeParameters)?
-    (NL* type NL* ('.' | '?.'))? // ?. here is a disambiguation in cases where tokens '?' and '.' go after each other
+    (NL* type NL* '.')? // ?. here is a disambiguation in cases where tokens '?' and '.' go after each other
     (NL* simpleIdentifier)
     NL* functionValueParameters
     (NL* ':' NL* type)?
@@ -183,7 +183,7 @@ companionObject
 propertyDeclaration
     : modifierList? ('val' | 'var')
     (NL* typeParameters)?
-    (NL* type NL* '.')?
+    (NL* type NL* '.')? // ?. here is a disambiguation in cases where tokens '?' and '.' go after each other
     (NL* (multiVariableDeclaration | variableDeclaration))
     (NL* typeConstraints)?
     (NL* ('by' | '=') NL* expression)?
@@ -683,7 +683,7 @@ postfixUnaryOperator
     ;
 
 memberAccessOperator
-    : '.' | '?.' | '::'
+    : '.' | '?' /* XXX: no WS here */ '.' | '::'
     ;
 
 modifierList
@@ -847,7 +847,7 @@ shebangLine
     : ShebangLine
     ;
 
-semi: NL+ | ';' | ';' NL* | EOF;
+semi: (';' | NL) NL* | EOF; // actually, it's WS or comment between ';', here it's handled in lexer (see ;; token)
 semis
-    : semi ((WS | NL)+ semi)*
+    : (';' | NL)+ | EOF // writing this as "semi+" sends antlr into infinite loop or smth
     ;
