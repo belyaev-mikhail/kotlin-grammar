@@ -15,8 +15,7 @@ lexer grammar KotlinLexer;
 import UnicodeClasses;
 
 ShebangLine
-    : '#!' ~[\u000A\u000D]*
-      -> channel(HIDDEN)
+    : '#!' ~[\r\n]*
     ;
 
 DelimitedComment
@@ -25,7 +24,7 @@ DelimitedComment
     ;
 
 LineComment
-    : '//' ~[\u000A\u000D]*
+    : '//' ~[\r\n]*
       -> channel(HIDDEN)
     ;
 
@@ -34,19 +33,19 @@ WS
       -> skip
     ;
 
-NL: '\u000A' | '\u000D' '\u000A' ;
+NL: '\n' | '\r' '\n'? ;
 
 //SEPARATORS & OPERATIONS
 
 RESERVED: '...' ;
 DOT: '.' ;
 COMMA: ',' ;
-LPAREN: '(' -> pushMode(Inside) ;
+LPAREN: '(' ;
 RPAREN: ')' ;
-LSQUARE: '[' -> pushMode(Inside) ;
+LSQUARE: '[' ;
 RSQUARE: ']' ;
-LCURL: '{' ;
-RCURL: '}' ;
+LCURL: '{' -> pushMode(DEFAULT_MODE);
+RCURL: '}' -> popMode;
 MULT: '*' ;
 MOD: '%' ;
 DIV: '/' ;
@@ -91,6 +90,9 @@ SINGLE_QUOTE: '\'' ;
 RETURN_AT: 'return@' Identifier ;
 CONTINUE_AT: 'continue@' Identifier ;
 BREAK_AT: 'break@' Identifier ;
+
+THIS_AT: 'this@' Identifier ;
+SUPER_AT: 'super@' Identifier ;
 
 FILE: '@file' ;
 PACKAGE: 'package' ;
@@ -169,7 +171,8 @@ NOINLINE: 'noinline' ;
 CROSSINLINE: 'crossinline' ;
 REIFIED: 'reified' ;
 
-//
+EXPECT: 'expect' ;
+ACTUAL: 'actual' ;
 
 QUOTE_OPEN: '"' -> pushMode(LineString) ;
 TRIPLE_QUOTE_OPEN: '"""' -> pushMode(MultiLineString) ;
@@ -180,19 +183,20 @@ RealLiteral
     ;
 
 FloatLiteral
-    : (DoubleLiteral | IntegerLiteral) [fF]
+    : DoubleLiteral [fF]
+    | DecDigits [fF]
     ;
 
+fragment DecDigitOrSeparator: DecDigit | '_';
+fragment DecDigits
+    : DecDigit DecDigitOrSeparator* DecDigit
+    | DecDigit
+    ;
+fragment DoubleExponent: [eE] [+-]? DecDigits;
+
 DoubleLiteral
-    : ( (DecDigitNoZero DecDigit*)? '.'
-      | (DecDigitNoZero (DecDigit | '_')* DecDigit)? '.')
-     ( DecDigit+
-      | DecDigit (DecDigit | '_')+ DecDigit
-      | DecDigit+ [eE] ('+' | '-')? DecDigit+
-      | DecDigit+ [eE] ('+' | '-')? DecDigit (DecDigit | '_')+ DecDigit
-      | DecDigit (DecDigit | '_')+ DecDigit [eE] ('+' | '-')? DecDigit+
-      | DecDigit (DecDigit | '_')+ DecDigit [eE] ('+' | '-')? DecDigit (DecDigit | '_')+ DecDigit
-     )
+    : DecDigits? '.' DecDigits DoubleExponent?
+    | DecDigits DoubleExponent
     ;
 
 LongLiteral
@@ -200,74 +204,42 @@ LongLiteral
     ;
 
 IntegerLiteral
-    : ('0'
-      | DecDigitNoZero DecDigit*
-      | DecDigitNoZero (DecDigit | '_')+ DecDigit
-      | DecDigitNoZero DecDigit* [eE] ('+' | '-')? DecDigit+
-      | DecDigitNoZero DecDigit* [eE] ('+' | '-')? DecDigit (DecDigit | '_')+ DecDigit
-      | DecDigitNoZero (DecDigit | '_')+ DecDigit [eE] ('+' | '-')? DecDigit+
-      | DecDigitNoZero (DecDigit | '_')+ DecDigit [eE] ('+' | '-')? DecDigit (DecDigit | '_')+ DecDigit
-      )
+    : DecDigitNoZero DecDigitOrSeparator* DecDigit
+    | DecDigit // including '0'
     ;
 
-fragment DecDigit
+fragment UnicodeDigit
     : UNICODE_CLASS_ND
     ;
 
-fragment DecDigitNoZero
-    : UNICODE_CLASS_ND_NoZeros
+fragment DecDigit
+    : '0'..'9'
     ;
 
-fragment UNICODE_CLASS_ND_NoZeros
-	: '\u0031'..'\u0039'
-	| '\u0661'..'\u0669'
-	| '\u06f1'..'\u06f9'
-	| '\u07c1'..'\u07c9'
-	| '\u0967'..'\u096f'
-	| '\u09e7'..'\u09ef'
-	| '\u0a67'..'\u0a6f'
-	| '\u0ae7'..'\u0aef'
-	| '\u0b67'..'\u0b6f'
-	| '\u0be7'..'\u0bef'
-	| '\u0c67'..'\u0c6f'
-	| '\u0ce7'..'\u0cef'
-	| '\u0d67'..'\u0d6f'
-	| '\u0de7'..'\u0def'
-	| '\u0e51'..'\u0e59'
-	| '\u0ed1'..'\u0ed9'
-	| '\u0f21'..'\u0f29'
-	| '\u1041'..'\u1049'
-	| '\u1091'..'\u1099'
-	| '\u17e1'..'\u17e9'
-	| '\u1811'..'\u1819'
-	| '\u1947'..'\u194f'
-	| '\u19d1'..'\u19d9'
-	| '\u1a81'..'\u1a89'
-	| '\u1a91'..'\u1a99'
-	| '\u1b51'..'\u1b59'
-	| '\u1bb1'..'\u1bb9'
-	| '\u1c41'..'\u1c49'
-	| '\u1c51'..'\u1c59'
-	| '\ua621'..'\ua629'
-	| '\ua8d1'..'\ua8d9'
-	| '\ua901'..'\ua909'
-	| '\ua9d1'..'\ua9d9'
-	| '\ua9f1'..'\ua9f9'
-	| '\uaa51'..'\uaa59'
-	| '\uabf1'..'\uabf9'
-	| '\uff11'..'\uff19'
-	;
+fragment DecDigitNoZero
+    : '1'..'9'
+    ;
+
+fragment HexDigitOrSeparator
+    : HexDigit | '_'
+    ;
 
 HexLiteral
-    : '0' [xX] HexDigit (HexDigit | '_')*
+    : '0' [xX] HexDigit HexDigitOrSeparator* HexDigit
+    | '0' [xX] HexDigit
     ;
 
 fragment HexDigit
     : [0-9a-fA-F]
     ;
 
+fragment BinDigitOrSeparator
+    : BinDigit | '_'
+    ;
+
 BinLiteral
-    : '0' [bB] BinDigit (BinDigit | '_')*
+    : '0' [bB] BinDigit BinDigitOrSeparator* BinDigit
+    | '0' [bB] BinDigit
     ;
 
 fragment BinDigit
@@ -284,24 +256,68 @@ NullLiteral
     ;
 
 Identifier
-    : (Letter | '_') (Letter | '_' | DecDigit)*
-    | '`' ~('`')+ '`'
+    : (Letter | '_') (Letter | '_' | UnicodeDigit)*
+    | '`' ~('\r' | '\n' | '`' | '[' | ']' | '<' | '>')+ '`'
     ;
 
-LabelReference
-    : '@' Identifier
+fragment IdentifierOrSoftKey
+    : Identifier //soft keywords:
+    | ABSTRACT
+    | ANNOTATION
+    | BY
+    | CATCH
+    | COMPANION
+    | CONSTRUCTOR
+    | CROSSINLINE
+    | DATA
+    | DYNAMIC
+    | ENUM
+    | EXTERNAL
+    | FINAL
+    | FINALLY
+    | GETTER
+    | IMPORT
+    | INFIX
+    | INIT
+    | INLINE
+    | INNER
+    | INTERNAL
+    | LATEINIT
+    | NOINLINE
+    | OPEN
+    | OPERATOR
+    | OUT
+    | OVERRIDE
+    | PRIVATE
+    | PROTECTED
+    | PUBLIC
+    | REIFIED
+    | SEALED
+    | TAILREC
+    | SETTER
+    | VARARG
+    | WHERE
+    | EXPECT
+    | ACTUAL
+    //strong keywords
+    | CONST
+    | SUSPEND
     ;
 
-LabelDefinition
-    : Identifier '@'
+AtIdentifier
+    : '@' IdentifierOrSoftKey
     ;
 
-FieldIdentifier
-    : '$' Identifier
+IdentifierAt
+    : IdentifierOrSoftKey '@'
+    ;
+
+FieldIdentifier // why is this even needed?
+    : '$' IdentifierOrSoftKey
     ;
 
 CharacterLiteral
-    : '\'' (EscapeSeq | .) '\''
+    : '\'' (EscapeSeq | ~[\n\r'\\]) '\''
     ;
 
 fragment EscapeSeq
@@ -326,6 +342,7 @@ fragment Letter
     | UNICODE_CLASS_NL
     ;
 
+ErrorCharacter: .;
 
 mode Inside ;
 
@@ -441,6 +458,9 @@ Inside_NOINLINE: NOINLINE -> type(NOINLINE) ;
 Inside_CROSSINLINE: CROSSINLINE -> type(CROSSINLINE) ;
 Inside_REIFIED: REIFIED -> type(REIFIED) ;
 
+Inside_EXPECT: EXPECT -> type(EXPECT) ;
+Inside_ACTUAL: ACTUAL -> type(ACTUAL) ;
+
 Inside_BooleanLiteral: BooleanLiteral -> type(BooleanLiteral) ;
 Inside_IntegerLiteral: IntegerLiteral -> type(IntegerLiteral) ;
 Inside_HexLiteral: HexLiteral -> type(HexLiteral) ;
@@ -452,12 +472,11 @@ Inside_NullLiteral: NullLiteral -> type(NullLiteral) ;
 Inside_LongLiteral: LongLiteral -> type(LongLiteral) ;
 
 Inside_Identifier: Identifier -> type(Identifier) ;
-Inside_LabelReference: LabelReference -> type(LabelReference) ;
-Inside_LabelDefinition: LabelDefinition -> type(LabelDefinition) ;
+Inside_IdentifierAt: IdentifierAt -> type(IdentifierAt) ;
+Inside_AtIdentifier: AtIdentifier -> type(AtIdentifier) ;
 Inside_Comment: (LineComment | DelimitedComment) -> channel(HIDDEN) ;
 Inside_WS: WS -> skip ;
-Inside_NL: NL -> skip ;
-
+Inside_NL: NL -> type(NL) ;
 
 mode LineString ;
 
@@ -474,12 +493,12 @@ LineStrText
     ;
 
 LineStrEscapedChar
-    : '\\' .
+    : EscapedIdentifier
     | UniCharacterLiteral
     ;
 
 LineStrExprStart
-    : '${' -> pushMode(StringExpression)
+    : '${' -> pushMode(DEFAULT_MODE)
     ;
 
 
@@ -498,90 +517,11 @@ MultiLineStrRef
     ;
 
 MultiLineStrText
-    :  ~('\\' | '"' | '$')+ | '$'
-    ;
-
-MultiLineStrEscapedChar
-    : '\\' .
+    :  ~('"' | '$')+ | '$' // multiline does not support escaping, so only '$' should be disallowed
     ;
 
 MultiLineStrExprStart
-    : '${' -> pushMode(StringExpression)
+    : '${' -> pushMode(DEFAULT_MODE)
     ;
 
-MultiLineNL: NL -> skip ;
-
-
-mode StringExpression ;
-
-StrExpr_RCURL: RCURL -> popMode, type(RCURL) ;
-
-StrExpr_LPAREN: LPAREN -> pushMode(Inside), type(LPAREN) ;
-StrExpr_LSQUARE: LSQUARE -> pushMode(Inside), type(LSQUARE) ;
-
-StrExpr_RPAREN: ')' -> type(RPAREN) ;
-StrExpr_RSQUARE: ']' -> type(RSQUARE);
-StrExpr_LCURL: LCURL -> pushMode(StringExpression), type(LCURL) ;
-StrExpr_DOT: DOT -> type(DOT) ;
-StrExpr_COMMA: COMMA  -> type(COMMA) ;
-StrExpr_MULT: MULT -> type(MULT) ;
-StrExpr_MOD: MOD  -> type(MOD) ;
-StrExpr_DIV: DIV -> type(DIV) ;
-StrExpr_ADD: ADD  -> type(ADD) ;
-StrExpr_SUB: SUB  -> type(SUB) ;
-StrExpr_INCR: INCR  -> type(INCR) ;
-StrExpr_DECR: DECR  -> type(DECR) ;
-StrExpr_CONJ: CONJ  -> type(CONJ) ;
-StrExpr_DISJ: DISJ  -> type(DISJ) ;
-StrExpr_EXCL: EXCL  -> type(EXCL) ;
-StrExpr_COLON: COLON  -> type(COLON) ;
-StrExpr_SEMICOLON: SEMICOLON  -> type(SEMICOLON) ;
-StrExpr_ASSIGNMENT: ASSIGNMENT  -> type(ASSIGNMENT) ;
-StrExpr_ADD_ASSIGNMENT: ADD_ASSIGNMENT  -> type(ADD_ASSIGNMENT) ;
-StrExpr_SUB_ASSIGNMENT: SUB_ASSIGNMENT  -> type(SUB_ASSIGNMENT) ;
-StrExpr_MULT_ASSIGNMENT: MULT_ASSIGNMENT  -> type(MULT_ASSIGNMENT) ;
-StrExpr_DIV_ASSIGNMENT: DIV_ASSIGNMENT  -> type(DIV_ASSIGNMENT) ;
-StrExpr_MOD_ASSIGNMENT: MOD_ASSIGNMENT  -> type(MOD_ASSIGNMENT) ;
-StrExpr_ARROW: ARROW  -> type(ARROW) ;
-StrExpr_DOUBLE_ARROW: DOUBLE_ARROW  -> type(DOUBLE_ARROW) ;
-StrExpr_RANGE: RANGE  -> type(RANGE) ;
-StrExpr_COLONCOLON: COLONCOLON  -> type(COLONCOLON) ;
-StrExpr_Q_COLONCOLON: Q_COLONCOLON -> type(Q_COLONCOLON) ;
-StrExpr_DOUBLE_SEMICOLON: DOUBLE_SEMICOLON  -> type(DOUBLE_SEMICOLON) ;
-StrExpr_HASH: HASH  -> type(HASH) ;
-StrExpr_AT: AT  -> type(AT) ;
-StrExpr_QUEST: QUEST  -> type(QUEST) ;
-StrExpr_ELVIS: ELVIS  -> type(ELVIS) ;
-StrExpr_LANGLE: LANGLE  -> type(LANGLE) ;
-StrExpr_RANGLE: RANGLE  -> type(RANGLE) ;
-StrExpr_LE: LE  -> type(LE) ;
-StrExpr_GE: GE  -> type(GE) ;
-StrExpr_EXCL_EQ: EXCL_EQ  -> type(EXCL_EQ) ;
-StrExpr_EXCL_EQEQ: EXCL_EQEQ  -> type(EXCL_EQEQ) ;
-StrExpr_AS: AS -> type(IS) ;
-StrExpr_IS: IS -> type(IN) ;
-StrExpr_IN: IN ;
-StrExpr_NOT_IS: NOT_IS -> type(NOT_IS) ;
-StrExpr_NOT_IN: NOT_IN -> type(NOT_IN) ;
-StrExpr_AS_SAFE: AS_SAFE  -> type(AS_SAFE) ;
-StrExpr_EQEQ: EQEQ  -> type(EQEQ) ;
-StrExpr_EQEQEQ: EQEQEQ  -> type(EQEQEQ) ;
-StrExpr_SINGLE_QUOTE: SINGLE_QUOTE  -> type(SINGLE_QUOTE) ;
-StrExpr_QUOTE_OPEN: QUOTE_OPEN -> pushMode(LineString), type(QUOTE_OPEN) ;
-StrExpr_TRIPLE_QUOTE_OPEN: TRIPLE_QUOTE_OPEN -> pushMode(MultiLineString), type(TRIPLE_QUOTE_OPEN) ;
-
-StrExpr_BooleanLiteral: BooleanLiteral -> type(BooleanLiteral) ;
-StrExpr_IntegerLiteral: IntegerLiteral -> type(IntegerLiteral) ;
-StrExpr_HexLiteral: HexLiteral -> type(HexLiteral) ;
-StrExpr_BinLiteral: BinLiteral -> type(BinLiteral) ;
-StrExpr_CharacterLiteral: CharacterLiteral -> type(CharacterLiteral) ;
-StrExpr_RealLiteral: RealLiteral -> type(RealLiteral) ;
-StrExpr_NullLiteral: NullLiteral -> type(NullLiteral) ;
-StrExpr_LongLiteral: LongLiteral -> type(LongLiteral) ;
-
-StrExpr_Identifier: Identifier -> type(Identifier) ;
-StrExpr_LabelReference: LabelReference -> type(LabelReference) ;
-StrExpr_LabelDefinition: LabelDefinition -> type(LabelDefinition) ;
-StrExpr_Comment: (LineComment | DelimitedComment) -> channel(HIDDEN) ;
-StrExpr_WS: WS -> skip ;
-StrExpr_NL: NL -> skip ;
+MultiLineNL: NL -> type(NL) ;
