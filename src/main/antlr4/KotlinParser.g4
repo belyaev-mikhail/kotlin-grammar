@@ -776,7 +776,7 @@ annotation
     ;
 
 annotationList
-    : annotationUseSiteTarget COLON '[' unescapedAnnotation+ ']'
+    : annotationUseSiteTarget ':' '[' unescapedAnnotation+ ']'
     | '@[' unescapedAnnotation+ ']'
     ;
 
