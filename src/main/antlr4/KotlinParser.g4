@@ -15,11 +15,11 @@ parser grammar KotlinParser;
 options { tokenVocab = KotlinLexer; }
 
 kotlinFile
-    : ShebangLine? NL* fileAnnotation* packageHeader importList topLevelObject* EOF
+    : shebangLine? NL* fileAnnotation* packageHeader importList topLevelObject* EOF
     ;
 
 script
-    : ShebangLine? NL* fileAnnotation* packageHeader importList (expression semi)* EOF
+    : shebangLine? NL* fileAnnotation* packageHeader importList (statement semi)* EOF
     ;
 
 fileAnnotation
@@ -328,15 +328,15 @@ conjunction
     ;
 
 equality
-    : comparison (NL* equalityOperator NL* (comparison | ifExpression))*
+    : comparison (/* NO NL! */ equalityOperator NL* (comparison | ifExpression))*
     ;
 
 comparison
-    : infixOperation (NL* comparisonOperator NL* (infixOperation | ifExpression))?
+    : infixOperation (/* NO NL! */ comparisonOperator NL* (infixOperation | ifExpression))?
     ;
 
 infixOperation
-    : elvisExpression (NL* inOperator NL* (elvisExpression | ifExpression) | isOperator NL* type)*
+    : elvisExpression (/* NO NL! */ inOperator NL* (elvisExpression | ifExpression) | isOperator NL* type)*
     ;
 
 elvisExpression
@@ -344,19 +344,19 @@ elvisExpression
     ;
 
 infixFunctionCall
-    : rangeExpression (NL* simpleIdentifier NL* (rangeExpression | ifExpression))*
+    : rangeExpression (/* NO NL! */ simpleIdentifier NL* (rangeExpression | ifExpression))*
     ;
 
 rangeExpression
-    : additiveExpression (RANGE NL* (additiveExpression | ifExpression))*
+    : additiveExpression (/* NO NL! */ RANGE NL* (additiveExpression | ifExpression))*
     ;
 
 additiveExpression
-    : multiplicativeExpression (NL* additiveOperator NL* (multiplicativeExpression | ifExpression))*
+    : multiplicativeExpression (/* NO NL! */ additiveOperator NL* (multiplicativeExpression | ifExpression))*
     ;
 
 multiplicativeExpression
-    : asExpression (NL* multiplicativeOperator NL* (asExpression | ifExpression))*
+    : asExpression (/* NO NL! */ multiplicativeOperator NL* (asExpression | ifExpression))*
     ;
 
 asExpression
@@ -505,7 +505,7 @@ multiLineStringContent
     ;
 
 multiLineStringExpression
-    : MultiLineStrExprStart expression RCURL
+    : MultiLineStrExprStart NL* expression NL* RCURL
     ;
 
 lambdaLiteral // anonymous functions?
@@ -838,6 +838,10 @@ simpleIdentifier
 
 identifier
     : simpleIdentifier (NL* DOT simpleIdentifier)*
+    ;
+
+shebangLine
+    : ShebangLine
     ;
 
 semi: NL+ | SEMICOLON | SEMICOLON NL+ | EOF;

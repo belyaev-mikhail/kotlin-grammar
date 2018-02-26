@@ -40,10 +40,10 @@ NL: '\n' | '\r' '\n'? ;
 RESERVED: '...' ;
 DOT: '.' ;
 COMMA: ',' ;
-LPAREN: '(' ;
-RPAREN: ')' ;
-LSQUARE: '[' ;
-RSQUARE: ']' ;
+LPAREN: '(' -> pushMode(Inside);
+RPAREN: ')' -> popMode;
+LSQUARE: '[' -> pushMode(Inside);
+RSQUARE: ']' -> popMode;
 LCURL: '{' -> pushMode(DEFAULT_MODE);
 RCURL: '}' -> popMode;
 MULT: '*' ;
@@ -346,14 +346,13 @@ ErrorCharacter: .;
 
 mode Inside ;
 
-Inside_RPAREN: ')' -> popMode, type(RPAREN) ;
-Inside_RSQUARE: ']' -> popMode, type(RSQUARE);
-
+Inside_RPAREN: RPAREN -> popMode, type(RPAREN) ;
+Inside_RSQUARE: RSQUARE -> popMode, type(RSQUARE);
 Inside_LPAREN: LPAREN -> pushMode(Inside), type(LPAREN) ;
 Inside_LSQUARE: LSQUARE -> pushMode(Inside), type(LSQUARE) ;
+Inside_LCURL: LCURL -> pushMode(DEFAULT_MODE), type(LCURL) ;
+Inside_RCURL: RCURL -> popMode, type(RCURL) ;
 
-Inside_LCURL: LCURL -> type(LCURL) ;
-Inside_RCURL: RCURL -> type(RCURL) ;
 Inside_DOT: DOT -> type(DOT) ;
 Inside_COMMA: COMMA  -> type(COMMA) ;
 Inside_MULT: MULT -> type(MULT) ;
@@ -457,7 +456,6 @@ Inside_VARARG: VARARG -> type(VARARG) ;
 Inside_NOINLINE: NOINLINE -> type(NOINLINE) ;
 Inside_CROSSINLINE: CROSSINLINE -> type(CROSSINLINE) ;
 Inside_REIFIED: REIFIED -> type(REIFIED) ;
-
 Inside_EXPECT: EXPECT -> type(EXPECT) ;
 Inside_ACTUAL: ACTUAL -> type(ACTUAL) ;
 
@@ -468,7 +466,6 @@ Inside_BinLiteral: BinLiteral -> type(BinLiteral) ;
 Inside_CharacterLiteral: CharacterLiteral -> type(CharacterLiteral) ;
 Inside_RealLiteral: RealLiteral -> type(RealLiteral) ;
 Inside_NullLiteral: NullLiteral -> type(NullLiteral) ;
-
 Inside_LongLiteral: LongLiteral -> type(LongLiteral) ;
 
 Inside_Identifier: Identifier -> type(Identifier) ;
@@ -476,7 +473,8 @@ Inside_IdentifierAt: IdentifierAt -> type(IdentifierAt) ;
 Inside_AtIdentifier: AtIdentifier -> type(AtIdentifier) ;
 Inside_Comment: (LineComment | DelimitedComment) -> channel(HIDDEN) ;
 Inside_WS: WS -> skip ;
-Inside_NL: NL -> type(NL) ;
+// this is the only actual difference between default and 'Inside' modes
+Inside_NL: NL -> skip ;
 
 mode LineString ;
 

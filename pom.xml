@@ -31,9 +31,6 @@
                     <target>1.8</target>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
-                    <compilerArguments>
-                        <Xlint/>
-                    </compilerArguments>
                 </configuration>
             </plugin>
             <plugin>
