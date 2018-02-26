@@ -30,7 +30,7 @@ LineComment
 
 WS
     : [\u0020\u0009\u000C]
-      -> skip
+      -> channel(HIDDEN)
     ;
 
 NL: '\n' | '\r' '\n'? ;
@@ -57,6 +57,7 @@ DECR: '--' ;
 CONJ: '&&' ;
 DISJ: '||' ;
 EXCL: '!' ;
+EXCLEXCL: '!!' ;
 COLON: ':' ;
 SEMICOLON: ';' ;
 ASSIGNMENT: '=' ;
@@ -74,6 +75,7 @@ DOUBLE_SEMICOLON: ';;' ;
 HASH: '#' ;
 AT: '@' ;
 QUEST: '?' ;
+QUESTDOT: '?.' ;
 ELVIS: '?:' ;
 LANGLE: '<' ;
 RANGLE: '>' ;
@@ -366,6 +368,7 @@ Inside_DECR: DECR  -> type(DECR) ;
 Inside_CONJ: CONJ  -> type(CONJ) ;
 Inside_DISJ: DISJ  -> type(DISJ) ;
 Inside_EXCL: EXCL  -> type(EXCL) ;
+Inside_EXCLEXCL: EXCLEXCL  -> type(EXCLEXCL) ;
 Inside_COLON: COLON  -> type(COLON) ;
 Inside_SEMICOLON: SEMICOLON  -> type(SEMICOLON) ;
 Inside_ASSIGNMENT: ASSIGNMENT  -> type(ASSIGNMENT) ;
@@ -384,6 +387,7 @@ Inside_DOUBLE_SEMICOLON: DOUBLE_SEMICOLON  -> type(DOUBLE_SEMICOLON) ;
 Inside_HASH: HASH  -> type(HASH) ;
 Inside_AT: AT  -> type(AT) ;
 Inside_QUEST: QUEST  -> type(QUEST) ;
+Inside_QUESTDOT: QUESTDOT  -> type(QUESTDOT) ;
 Inside_ELVIS: ELVIS  -> type(ELVIS) ;
 Inside_LANGLE: LANGLE  -> type(LANGLE) ;
 Inside_RANGLE: RANGLE  -> type(RANGLE) ;
