@@ -43,11 +43,7 @@ importAlias
     ;
 
 topLevelObject
-    : (classDeclaration
-    | functionDeclaration
-    | objectDeclaration
-    | propertyDeclaration
-    | typeAlias) semis
+    : declaration semis
     ;
 
 classDeclaration
@@ -70,7 +66,7 @@ classParameter
     : modifierList? ('val' | 'var')? NL* simpleIdentifier ':' NL* type (NL* '=' NL* expression)?
     ;
 
-delegationSpecifiers // wrong: every delegationSpecifier may contain annotations
+delegationSpecifiers
     : annotatedDelegationSpecifier (NL* ',' NL* annotatedDelegationSpecifier)*
     ;
 
@@ -102,14 +98,10 @@ classMemberDeclarations
     ;
 
 classMemberDeclaration
-    : classDeclaration
-    | functionDeclaration
-    | objectDeclaration
+    : declaration
     | companionObject
-    | propertyDeclaration
     | anonymousInitializer
     | secondaryConstructor
-    | typeAlias
     ;
 
 anonymousInitializer
@@ -130,7 +122,7 @@ enumClassBody
     ;
 
 enumEntries
-    : (enumEntry (NL* ',' NL* enumEntry)* NL* ','?)
+    : enumEntry (NL* ',' NL* enumEntry)* NL* ','?
     ;
 
 enumEntry
@@ -183,7 +175,7 @@ companionObject
 propertyDeclaration
     : modifierList? ('val' | 'var')
     (NL* typeParameters)?
-    (NL* type NL* '.')? // ?. here is a disambiguation in cases where tokens '?' and '.' go after each other
+    (NL* type NL* '.')?
     (NL* (multiVariableDeclaration | variableDeclaration))
     (NL* typeConstraints)?
     (NL* ('by' | '=') NL* expression)?
@@ -371,7 +363,7 @@ prefixUnaryExpression
 
 unaryPrefix
     : annotation
-    | IdentifierAt NL*
+    | labelDefinition
     | prefixUnaryOperator NL*
     ;
 
@@ -403,7 +395,7 @@ assignableSuffix
     ;
 
 indexingSuffix
-    : '[' NL* (expression NL* (',' NL* expression NL*)*) NL* ']'
+    : '[' NL* expression (NL* ',' NL* expression)* NL* ']'
     ;
 
 navigationSuffix
@@ -425,7 +417,7 @@ valueArguments
     ;
 
 typeArguments
-    : '<' NL* typeProjection (NL* ',' typeProjection)* NL* '>'
+    : '<' NL* typeProjection (NL* ',' NL* typeProjection)* NL* '>'
     ;
 
 typeProjection
@@ -486,7 +478,7 @@ lineStringLiteral
     ;
 
 multiLineStringLiteral // why is lineStringLiteral here? there is no escaping in multiline strings
-    : TRIPLE_QUOTE_OPEN (multiLineStringContent | multiLineStringExpression | lineStringLiteral | MultiLineStringQuote)* TRIPLE_QUOTE_CLOSE
+    : TRIPLE_QUOTE_OPEN (multiLineStringContent | multiLineStringExpression | MultiLineStringQuote)* TRIPLE_QUOTE_CLOSE
     ;
 
 lineStringContent
@@ -603,7 +595,8 @@ forStatement
     ;
 
 whileStatement
-    : 'while' NL* '(' expression ')' NL* controlStructureBody?
+    : 'while' NL* '(' expression ')' NL* controlStructureBody
+    | 'while' NL* '(' expression ')' NL* ';'
     ;
 
 doWhileStatement
@@ -847,7 +840,10 @@ shebangLine
     : ShebangLine
     ;
 
-semi: (';' | NL) NL* | EOF; // actually, it's WS or comment between ';', here it's handled in lexer (see ;; token)
-semis
-    : (';' | NL)+ | EOF // writing this as "semi+" sends antlr into infinite loop or smth
+semi
+    : (';' | NL) NL* // actually, it's WS or comment between ';', here it's handled in lexer (see ;; token)
+    | EOF;
+semis // writing this as "semi+" sends antlr into infinite loop or smth
+    : (';' | NL)+
+    | EOF
     ;
