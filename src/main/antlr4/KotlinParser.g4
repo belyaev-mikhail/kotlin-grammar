@@ -76,13 +76,13 @@ annotatedDelegationSpecifier
 
 delegationSpecifier
     : constructorInvocation
+    | explicitDelegation
     | userType
     | functionType
-    | explicitDelegation
     ;
 
 constructorInvocation
-    : userType callSuffix
+    : userType valueArguments
     ;
 
 explicitDelegation
@@ -368,7 +368,8 @@ unaryPrefix
     ;
 
 postfixUnaryExpression
-    : primaryExpression (postfixUnarySuffix)*
+    : primaryExpression
+    | primaryExpression (postfixUnarySuffix)*
     ;
 
 postfixUnarySuffix
@@ -399,7 +400,7 @@ indexingSuffix
     ;
 
 navigationSuffix
-    : NL* memberAccessOperator NL* (simpleIdentifier | 'class')
+    : NL* memberAccessOperator NL* (simpleIdentifier | parenthesizedExpression | 'class')
     ;
 
 callSuffix
