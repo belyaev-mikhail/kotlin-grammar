@@ -395,6 +395,7 @@ Inside_EXCL_EQ: EXCL_EQ  -> type(EXCL_EQ) ;
 Inside_EXCL_EQEQ: EXCL_EQEQ  -> type(EXCL_EQEQ) ;
 Inside_NOT_IS: NOT_IS -> type(NOT_IS) ;
 Inside_NOT_IN: NOT_IN -> type(NOT_IN) ;
+Inside_AS: AS  -> type(AS) ;
 Inside_AS_SAFE: AS_SAFE  -> type(AS_SAFE) ;
 Inside_EQEQ: EQEQ  -> type(EQEQ) ;
 Inside_EQEQEQ: EQEQEQ  -> type(EQEQEQ) ;
