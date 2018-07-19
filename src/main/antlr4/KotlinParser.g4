@@ -629,8 +629,7 @@ callableReference // ?:: here is not an actual operator, it's just a lexer hack 
     ;
 
 assignmentAndOperator
-    : '='
-    | '+='
+    : '+='
     | '-='
     | '*='
     | '/='
