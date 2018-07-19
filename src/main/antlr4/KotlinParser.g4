@@ -257,6 +257,11 @@ userType
     : simpleUserType (NL* '.' NL* simpleUserType)*
     ;
 
+parenthesizedUserType
+    : '(' userType ')'
+    | '(' parenthesizedUserType ')'
+    ;
+
 simpleUserType
     : simpleIdentifier (NL* typeArguments)?
     ;
@@ -578,7 +583,11 @@ tryExpression
     ;
 
 catchBlock
-    : 'catch' NL* '(' annotation* simpleIdentifier ':' userType ')' NL* block
+    : 'catch' NL* '(' catchParameter ')' NL* block
+    ;
+
+catchParameter
+    : annotation* simpleIdentifier ':' (userType | parenthesizedUserType)
     ;
 
 finallyBlock
