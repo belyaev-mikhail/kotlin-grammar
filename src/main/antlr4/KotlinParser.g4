@@ -178,7 +178,7 @@ propertyDeclaration
     (NL* type NL* '.')?
     (NL* (multiVariableDeclaration | variableDeclaration))
     (NL* typeConstraints)?
-    (NL* ('by' | '=') NL* expression)?
+    (NL* ('=' NL* expression | propertyDelegate))?
     (NL+ ';')? NL* (getter? (NL* semi? setter)? | setter? (NL* semi? getter)?)
     /*
         XXX: actually, it's not that simple. You can put semi only on the same line as getter, but any other semicolons
@@ -193,6 +193,10 @@ multiVariableDeclaration
 
 variableDeclaration
     : annotation* NL* simpleIdentifier (NL* ':' NL* type)?
+    ;
+
+propertyDelegate
+    : 'by' NL* expression
     ;
 
 getter
