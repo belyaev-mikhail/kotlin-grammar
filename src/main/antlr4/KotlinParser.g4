@@ -672,7 +672,6 @@ multiplicativeOperator
 asOperator
     : 'as'
     | 'as?'
-    | ':'
     ;
 
 prefixUnaryOperator
