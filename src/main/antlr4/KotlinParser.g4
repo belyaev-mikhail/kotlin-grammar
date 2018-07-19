@@ -99,7 +99,6 @@ classMemberDeclarations
 
 classMemberDeclaration
     : declaration
-    | companionObject
     | anonymousInitializer
     | secondaryConstructor
     ;
@@ -160,13 +159,6 @@ functionBody
 
 objectDeclaration
     : modifierList? 'object'
-    NL* simpleIdentifier
-    (NL* ':' NL* delegationSpecifiers)?
-    (NL* classBody)?
-    ;
-
-companionObject
-    : modifierList? 'companion' NL* 'object'
     (NL* simpleIdentifier)?
     (NL* ':' NL* delegationSpecifiers)?
     (NL* classBody)?
@@ -702,6 +694,7 @@ modifier
     | varianceAnnotation
     | functionModifier
     | propertyModifier
+    | objectModifier
     | inheritanceModifier
     | parameterModifier
     | typeParameterModifier
@@ -744,6 +737,10 @@ functionModifier
 
 propertyModifier
     : 'const'
+    ;
+
+objectModifier
+    : 'companion'
     ;
 
 inheritanceModifier
